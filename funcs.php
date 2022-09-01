@@ -8,12 +8,12 @@ function h($str){
 function db_conn(){
   try {
       //localhostの場合
-      $db_name = "gs_bm";    //データベース名
+      $db_name = "gs_db4";    //データベース名
       $db_id   = "root";      //アカウント名
       $db_pw   = "";          //パスワード：XAMPPはパスワード無しに修正してください。
       $db_host = "localhost"; //DBホスト
 
-      //localhost以外＊＊自分で書き直してください！！＊＊
+      //localhost以外＊＊自分で書き直してください！！＊＊ --> DB名は要変更
       if($_SERVER["HTTP_HOST"] != 'localhost'){
           $db_name = "kaichan007_gs_bm";  //データベース名
           $db_id   = "kaichan007";  //アカウント名（さくらコントロールパネルに表示されています）

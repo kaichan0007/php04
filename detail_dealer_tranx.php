@@ -22,7 +22,7 @@ if($status==false) {
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>データ更新</title>
+  <title>他DLRリスクスト処理</title>
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <style>div{padding: 10px;font-size:16px;}</style>
 </head>
@@ -42,20 +42,22 @@ if($status==false) {
 <!-- Head[End] -->
 
 <!-- Main[Start] -->
-<form method="POST" action="update.php">
+<form method="POST" action="update_dealer_tranx.php">
   <div class="jumbotron">
    <fieldset>
-   <legend>在庫情報一覧</legend>
-     <label>車両名: <input type="text" name="v_name" value="<?=$row["vehicle_name"]?>"></label><br>
-     <label>VIN number: <input type="text" name="vin_number" value="<?=$row["VIN_number"]?>"></label><br>
-     <label>登録日: <input type="text" name="reg_date" value="<?=$row["purchase_date"]?>"></label><br>
-     <label>販売日: <input type="text" name="sales_date" value="<?=$row["sales_date"]?>"></label><br>
-     <label>ステータス（売却済み default=0/売却済=1）: 
-     <input type="text" name="sales_flag" value="<?=$row["sales_flag"]?>">
-      </label><br>
-     <label>ステータス（オークション default=0/出品中=1）: <input type="text" name="auction_flag" value="<?=$row["auction_flag"]?>"></label><br>
-     <label>ステータス（ディーラー間取引 default=0/申請中=1/相手DLR承認済(手付金待ち)=2）: <input type="text" name="tranx_status" value="<?=$row["transaction_status"]?>"></label><br>
-     <label>ステータス（在庫ファイナンス default=0/申請中=1/Disburse済=2）: <input type="text" name="stockfin_status" value="<?=$row["stockfin_flg"]?>"></label><br>
+   <legend>他DLRリクエスト</legend>
+     <label>車両名:<?=$row["vehicle_name"]?></label><br>
+     <label>VIN number: <?=$row["VIN_number"]?></label><br>
+     <label>登録日: <?=$row["purchase_date"]?></label><br>
+     <label>DLR名: <?=$row["transaction_dealer"]?></label><br>
+     <label>ステータス更新（許可=2/却下=0）: 
+      
+     <select name='tranx_status'>
+      <option value='2'>許可</option>
+      <option value='0'>却下</option>
+     </select>
+ 
+     </label>
      <label>車両画像: <img src="<?=$row["image_path"]?>" width="100" height="100"></label><br>
     <!-- idを隠して送信 -->
      <input type="hidden" name="id" value="<?=$row["id"]?>">
@@ -64,7 +66,6 @@ if($status==false) {
   </div>
 </form>
 <!-- Main[End] -->
-
 
 
 </body>

@@ -16,7 +16,7 @@ sschk();
 
 //２．データ登録SQL作成
 $pdo = db_conn();
-$stmt   = $pdo->prepare("SELECT * FROM gs_user_table"); //SQLをセット
+$stmt   = $pdo->prepare("SELECT * FROM used_stock_table"); //SQLをセット
 $status = $stmt->execute(); //SQLを実行→エラーの場合falseを$statusに代入
 
 //３．データ表示
@@ -26,12 +26,18 @@ if($status==false) {
   sql_error($stmt);
 }else{
   //SQL成功の場合
-  $view .= "<table><tr> <th>No.</th> <th>名前</th> <th>ID</th> <th>パスワード</th> <th>管理者Flag</th> </tr>";
+  $view .= "<table><tr> <th>車両名</th> <th>DLR間取引</th> <th>車両画像</th> <th>アクション</th> </tr>";
   while( $r = $stmt->fetch(PDO::FETCH_ASSOC)){ //データ取得数分繰り返す
-    //以下でリンクの文字列を作成, $r["id"]でidをdetail.phpに渡しています
-    $view .= "<tr>";
-    $view .= "<td>".h($r["id"])."</td><td>".h($r["name"])."</td><td>".h($r["lid"])."</td><td>".h($r["lpw"])."</td><td>".h($r["kanri_flg"])."</td>";
-    $view .= "</tr>";
+    if($_SESSION["name"]!=$r["owner_id"] && $r["sales_flag"]!=1) { //自分のID以外の在庫を表示、売却済み在庫除く
+      //以下でリンクの文字列を作成, $r["id"]でidをdetail.phpに渡しています
+      $view .= "<tr>";
+      $view .= "<td>".h($r["vehicle_name"])."</td><td>".h($r["transaction_status"])."</td>";
+      $view .= '<td><img src='.h($r["image_path"]).' width="100" height="100"></td>';
+      $view .= '<td><a href="apply_dealer_tranx.php?id='.h($r["id"]).'">';//ディーラー間取引申請処理
+      $view .= "[買取申請]<br>";
+      $view .= '</a></td>';
+      $view .= "</tr>";
+    }
   }
 }
 ?>
@@ -43,7 +49,7 @@ if($status==false) {
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ユーザー一覧</title>
+<title>他DLR在庫情報一覧</title>
 <link rel="stylesheet" href="css/range.css">
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <link href="css/table.css" rel="stylesheet">
@@ -58,7 +64,7 @@ if($status==false) {
                         <img src="files\HatchfulExport-All\logo_transparent.png" alt="Urusan Inventori Mobil" width="50">
       </div>
       <div class="navbar-header">
-      <a class="navbar-brand" href="user.php">ユーザー登録</a>
+      <a class="navbar-brand" href="index.php">データ登録</a>
       </div>
     </div>
   </nav>

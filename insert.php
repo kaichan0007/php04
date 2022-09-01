@@ -1,69 +1,23 @@
 <?php
 require_once 'C:/xampp/vendor/autoload.php';
-use PHPHtmlParser\Dom;
-use PHPHtmlParser\Options;
 
-// 文字コードを設定する。
-// 日本語だと文字コードの自動解析がうまく動かないようなので、
-// ページに合わせて設定する必要があります
-$options = new Options();
-$options->setEnforceEncoding('utf8');
+session_start();
 
-// ページを解析
-$url = 'https://www.release.tdnet.info/inbs/I_list_001_'.$_POST["date"].'.html';
-$dom = new Dom();
-$dom->loadFromUrl($url, $options);
+$v_name = $_POST["vehicle_name"];
+$v_number = $_POST["VIN_number"]; 
 
-$c_code = $_POST["company_code"];
-
-// 商品名を取得
-$aaa = $dom->find('td');
-
-$c_name="";
-$kaiji_title="";
-$kaiji_url="";
-
-for($i=0; $i<count($aaa); $i++)
-{
-    //echo $aaa[$i]."\n";
-    if(strcmp($aaa[$i]->text,$c_code)==0){
-        //echo "見つけました！";
-        //echo $aaa[$i+1];
-        //echo $aaa[$i+2];
-        //echo $aaa[$i+2]->firstChild()->getAttribute("href");
-
-        //$str = $aaa[$i+1]->text.",".$aaa[$i+2]->firstChild()->text.",".$aaa[$i+2]->firstChild()->getAttribute("href")."\n";
-
-        $c_name = $aaa[$i+1]->text;
-        $kaiji_title = $aaa[$i+2]->firstChild()->text;
-        $kaiji_url = $aaa[$i+2]->firstChild()->getAttribute("href");
-    }
-}
-
-//PDFの解析(1)
-$parser = new \Smalot\PdfParser\Parser();
-$pdf    = $parser->parseFile('https://www.release.tdnet.info/inbs/'.$kaiji_url);
-//$pdf    = $parser->parseFile('E002078.pdf');
-//echo $pdf->getText();
-
-
-//PDFの解析(2)
-//use \Spatie\PdfToText\Pdf;
-//$pdf2 = Pdf::getText("E002078.pdf");
-//$pdf2 = (new Pdf())
-//    ->setPdf('php03.pdf')
-//    ->text();
-//echo $pdf2;
-
-//echo 'https://www.release.tdnet.info/inbs/'.$kaiji_url;
-
-//echo mb_convert_encoding($pdf->getText(), 'SJIS-win', 'UTF-8');
-
-//echo $pdf->getText();
-
-$keyword = $_POST["search_key"];
-
-$count = substr_count($pdf->getText(), $keyword);
+//↓uploadファイルの有り無し確認
+if (is_uploaded_file($_FILES["upfile"]["tmp_name"])) {
+  //↓有効なファイルかどうかを検証し、問題なければ名前を変更しアップロード完了
+  if (move_uploaded_file($_FILES["upfile"]["tmp_name"], "files/" . $_FILES["upfile"]["name"])) {
+  chmod("files/" . $_FILES["upfile"]["name"], 0644); //パーミッション設定
+  echo $_FILES["upfile"]["name"] . "をアップロードしました。";
+  } else {
+  echo "ファイルをアップロードできません。";
+  }
+  } else {
+  echo "ファイルが選択されていません。";
+  }
 
 //2. DB接続します
 include("funcs.php");
@@ -71,16 +25,14 @@ sschk();
 $pdo = db_conn();
 
 //３．データ登録SQL作成
-$stmt = $pdo->prepare("insert into gs_bm_table(c_name, title, url, content, count) values(:c_name, :title, :url, :content, :count)");
-$stmt->bindValue(':c_name', $c_name, PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
-$stmt->bindValue(':title', $kaiji_title, PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
-$stmt->bindValue(':url', $kaiji_url, PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
-$stmt->bindValue(':content', $pdf->getText(), PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
-$stmt->bindValue(':count', $count, PDO::PARAM_INT);  //Integer（数値の場合 PDO::PARAM_INT)
+$stmt = $pdo->prepare("insert into used_stock_table(vehicle_name, VIN_number, owner_id, purchase_date, image_path) values(:vehicle_name, :VIN_number, :owner_id, :purchase_date, :image_path)");
+$stmt->bindValue(':vehicle_name', $v_name, PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
+$stmt->bindValue(':VIN_number', $v_number, PDO::PARAM_INT);  //Integer（数値の場合 PDO::PARAM_INT)
+$stmt->bindValue(':owner_id', $_SESSION["name"], PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
+$stmt->bindValue(':purchase_date', date("Y-m-d"), PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
+$stmt->bindValue(':image_path', "files/".$_FILES["upfile"]["name"], PDO::PARAM_STR);  //Integer（数値の場合 PDO::PARAM_INT)
 
 $status = $stmt->execute();
-
-
 
 //４．データ登録処理後
 if($status==false){

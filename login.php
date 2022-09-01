@@ -11,7 +11,15 @@
 <body>
 
 <header>
-  <nav class="navbar navbar-default">LOGIN</nav>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+                    <div class="navbar-header">
+                        <img src="files\HatchfulExport-All\logo_transparent.png" alt="Urusan Inventori Mobil" width="50">
+                    </div>
+                    <div class="navbar-header"><a class="navbar-brand">LOGIN</a></div>  
+    </div>
+  
+  </nav>
 </header>
 
 <!-- lLOGINogin_act.php は認証処理用のPHPです。 -->
